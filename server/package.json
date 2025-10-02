@@ -1,0 +1,30 @@
+{
+    "type": "module",
+    "ts-node": {
+        "esm": true
+    },
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "Express backend with timestamp API",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node index.js",
+        "dev": "nodemon index.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "typescript": "^4.9.5"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.3.0",
+        "nodemon": "^3.0.1",
+        "ts-node": "^10.9.2"
+    },
+    "engines": {
+        "node": "18.x"
+    }
+}
