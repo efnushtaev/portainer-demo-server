@@ -16,7 +16,7 @@ app.get('/api/getTimestamp', (req, res) => {
 // Создаём пул один раз (не внутри запроса) и без require('bluebird')
 const pool = mysql.createPool({
   port: Number(process.env.MYSQL_PORT) || 3306,
-  host: process.env.MYSQL_HOST || 'localhost',
+  host: process.env.DB_HOST || 'mysqldb', // changed: avoid ::1
   user: process.env.MYSQL_USER || 'app_user',
   password: process.env.MYSQL_PASSWORD || 'secure_password',
   database: process.env.MYSQL_DATABASE || 'users_db',
@@ -25,6 +25,17 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+// Добавлено: быстрый чек соединения при старте
+(async () => {
+  try {
+    const conn = await pool.getConnection();
+    await conn.ping();
+    conn.release();
+    console.log('MySQL connection OK');
+  } catch (err) {
+    console.error('MySQL connection failed:', (err as Error)?.message ?? err);
+  }
+})();
 // Получение списка пользователей из MySQL
 app.get('/api/users', async (req, res) => {
   try {
