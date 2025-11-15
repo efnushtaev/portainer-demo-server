@@ -16,6 +16,8 @@ app.get('/api/getTimestamp', (req, res) => {
 // Добавлено: получение списка пользователей из MySQL
 app.get('/api/users', async (req, res) => {
   const pool = mysql.createPool({
+    // Use promise-based interface
+    Promise: require('bluebird'), // Add this line
     port: 3306,
     host: 'localhost',
     user: 'app_user',
@@ -25,9 +27,8 @@ app.get('/api/users', async (req, res) => {
     connectionLimit: 10,
     queueLimit: 0,
   });
-
   try {
-    const [rows] = await pool.query('SELECT * FROM users');
+    const [rows] = await pool.promise().query('SELECT * FROM users');
     res.json(rows);
   } catch (err) {
     console.error('DB error:', err);
