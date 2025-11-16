@@ -25,6 +25,27 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+const waitForDB = async (maxRetries = 30, delayMs = 2000) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const conn = await pool.getConnection();
+      await conn.ping();
+      conn.release();
+      console.log('MySQL connection OK');
+      return true;
+    } catch (err) {
+      console.error(`[${i + 1}/${maxRetries}] MySQL connection failed:`, (err as Error)?.message ?? err);
+      if (i < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  console.error('Failed to connect to MySQL after all retries');
+  process.exit(1);
+};
+
+waitForDB();
+
 // Добавлено: быстрый чек соединения при старте
 (async () => {
   try {
