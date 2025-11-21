@@ -82,6 +82,8 @@ waitForDB();
   }
 })();
 
+app.use(express.json()); // для парсинга application/json
+
 // Получение списка пользователей из MySQL
 app.get('/api/getCount', async (req, res) => {
   try {
