@@ -85,7 +85,7 @@ waitForDB();
 // Получение списка пользователей из MySQL
 app.get('/api/getCount', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM count_value');
+    const [rows] = await pool.query('SELECT * FROM clickCount');
     res.json(rows);
   } catch (err) {
     console.error('DB error:', err);
