@@ -113,13 +113,13 @@ console.error('Req /api/count/:id', JSON.stringify(req.body));
     // Обновляем count
     const [result] = await connection.execute(
       'UPDATE clickCount SET count_value = ? WHERE id = ?',
-      [count, id]
+      [count+1, id]
     );
 
     // Получаем обновленную запись
     const [updatedItems] = await connection.execute(
       'SELECT id, count_value FROM clickCount WHERE id = ?',
-      [id, count+1]
+      [id, count]
     );
 
     res.json({
