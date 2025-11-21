@@ -97,7 +97,7 @@ app.patch('/api/count/:id', async (req, res) => {
   let connection;
   try {
     const { id } = req.params;
-
+console.error('Req /api/count/:id', JSON.stringify(req));
     const { count } = req.body;
 
     // Проверка наличия count в теле запроса
