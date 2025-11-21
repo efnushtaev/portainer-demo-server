@@ -25,6 +25,24 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+// После подключения к БД
+async function ensureTable() {
+  try {
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('Users table ensured');
+  } catch (error) {
+    console.error('Error creating table:', error);
+  }
+}
+
 const waitForDB = async (maxRetries = 30, delayMs = 2000) => {
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -32,6 +50,9 @@ const waitForDB = async (maxRetries = 30, delayMs = 2000) => {
       await conn.ping();
       conn.release();
       console.log('MySQL connection OK');
+
+      ensureTable();
+
       return true;
     } catch (err) {
       console.error(`[${i + 1}/${maxRetries}] MySQL connection failed:`, (err as Error)?.message ?? err);
