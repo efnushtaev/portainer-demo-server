@@ -99,22 +99,22 @@ app.patch('/api/count/:id', async (req, res) => {
   let connection;
   try {
     const { id } = req.params;
-console.error('Req /api/count/:id', JSON.stringify(req.body));
     const { count } = req.body;
-
+    
     // Проверка наличия count в теле запроса
     if (count === undefined || count === null) {
       return res.status(400).json({ error: 'Count field is required' });
     }
-
+    
     // Получаем соединение из пула
     connection = await pool.getConnection();
-
+    
     // Обновляем count
     const [result] = await connection.execute(
       'UPDATE clickCount SET count_value = ? WHERE id = ?',
-      [count+1, id]
+      [Number(count+1), id]
     );
+    console.error('Req result', JSON.stringify(result));
 
     // Получаем обновленную запись
     const [updatedItems] = await connection.execute(
