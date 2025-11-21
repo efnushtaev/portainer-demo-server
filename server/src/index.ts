@@ -93,7 +93,7 @@ app.get('/api/getCount', async (req, res) => {
   }
 });
 
-app.patch('/count/:id', async (req, res) => {
+app.patch('/api/count/:id', async (req, res) => {
   let connection;
   try {
     const { id } = req.params;
