@@ -37,7 +37,7 @@ async function ensureTable() {
     `);
 
     await pool.execute(`
-        INSERT INTO counts (id, count_value) VALUES (1, '0');
+        INSERT INTO clickCount (id, count_value) VALUES (1, '0');
     `);
 
     console.log('Users table ensured');
