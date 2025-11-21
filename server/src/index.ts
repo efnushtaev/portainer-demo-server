@@ -30,11 +30,8 @@ async function ensureTable() {
   try {
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS users (
-        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password_hash VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        id VARCHAR(255) NOT NULL,
+        count VARCHAR(255) NOT NULL,
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
     console.log('Users table ensured');
@@ -78,14 +75,56 @@ waitForDB();
     console.error('MySQL connection failed:', (err as Error)?.message ?? err);
   }
 })();
+
 // Получение списка пользователей из MySQL
-app.get('/api/users', async (req, res) => {
+app.get('/api/getCount', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM users');
+    const [rows] = await pool.query('SELECT * FROM count');
     res.json(rows);
   } catch (err) {
     console.error('DB error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.patch('/count/:id', async (req, res) => {
+  let connection;
+  try {
+    const { id } = req.params;
+
+    const { count } = req.body;
+
+    // Проверка наличия count в теле запроса
+    if (count === undefined || count === null) {
+      return res.status(400).json({ error: 'Count field is required' });
+    }
+
+    // Получаем соединение из пула
+    connection = await pool.getConnection();
+
+    // Обновляем count
+    const [result] = await connection.execute(
+      'UPDATE items SET count = ? WHERE id = ?',
+      [count, id]
+    );
+
+    // Получаем обновленную запись
+    const [updatedItems] = await connection.execute(
+      'SELECT id, count FROM items WHERE id = ?',
+      [id]
+    );
+
+    res.json({
+      message: 'Item updated successfully',
+      item: updatedItems
+    });
+
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    // Всегда возвращаем соединение в пул
+    if (connection) connection.release();
   }
 });
 
