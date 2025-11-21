@@ -30,9 +30,10 @@ async function ensureTable() {
   try {
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS users (
-        id VARCHAR(255) NOT NULL,
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
         count VARCHAR(255) NOT NULL,
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
     console.log('Users table ensured');
   } catch (error) {
