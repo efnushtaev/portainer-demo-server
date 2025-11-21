@@ -109,19 +109,20 @@ app.patch('/api/count/:id', async (req, res) => {
     // Получаем соединение из пула
     connection = await pool.getConnection();
     
+    const newCount = Number(count) + 1;
     // Обновляем count
     const [result] = await connection.execute(
       'UPDATE clickCount SET count_value = ? WHERE id = ?',
-      [Number(count+1), id]
+      [newCount, id]
     );
-    console.error('Req result', JSON.stringify(result));
-
+    
     // Получаем обновленную запись
     const [updatedItems] = await connection.execute(
       'SELECT id, count_value FROM clickCount WHERE id = ?',
-      [id, count]
+      [id, newCount]
     );
-
+    console.error('Req updatedItems', JSON.stringify(updatedItems));
+    
     res.json({
       message: 'Item updated successfully',
       item: updatedItems
