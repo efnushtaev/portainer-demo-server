@@ -31,10 +31,15 @@ async function ensureTable() {
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS clickCount (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        clickCount VARCHAR(255) NOT NULL,
+        count_value VARCHAR(255) NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+
+    await pool.execute(`
+        INSERT INTO counts (id, count_value) VALUES (1, '0');
+    `);
+
     console.log('Users table ensured');
   } catch (error) {
     console.error('Error creating table:', error);
@@ -80,7 +85,7 @@ waitForDB();
 // Получение списка пользователей из MySQL
 app.get('/api/getCount', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM clickCount');
+    const [rows] = await pool.query('SELECT * FROM count_value');
     res.json(rows);
   } catch (err) {
     console.error('DB error:', err);
@@ -105,13 +110,13 @@ app.patch('/count/:id', async (req, res) => {
 
     // Обновляем count
     const [result] = await connection.execute(
-      'UPDATE items SET clickCount = ? WHERE id = ?',
+      'UPDATE items SET count_value = ? WHERE id = ?',
       [count, id]
     );
 
     // Получаем обновленную запись
     const [updatedItems] = await connection.execute(
-      'SELECT id, clickCount FROM items WHERE id = ?',
+      'SELECT id, count_value FROM items WHERE id = ?',
       [id]
     );
 
