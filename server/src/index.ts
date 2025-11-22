@@ -119,7 +119,7 @@ app.patch('/api/count/:id', async (req, res) => {
     // Получаем обновленную запись
     const [updatedItems] = await connection.execute(
       'SELECT id, count_value FROM clickCount WHERE id = ?',
-      [id, newCount]
+      [id]
     );
     console.error('Req updatedItems', JSON.stringify(updatedItems));
     
