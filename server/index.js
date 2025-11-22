@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import mysql, { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
+import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,13 +22,6 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
 });
-
-// Интерфейс для типизации данных из БД
-interface ClickCount extends RowDataPacket {
-  id: number;
-  count_value: string;
-  created_at: Date;
-}
 
 // Инициализация базы данных
 async function initializeDatabase(maxRetries = 30, delayMs = 2000) {
@@ -54,7 +47,7 @@ async function initializeDatabase(maxRetries = 30, delayMs = 2000) {
       console.log('Database initialized successfully');
       return;
     } catch (error) {
-      console.error(`Attempt ${attempt}/${maxRetries}: Database initialization failed -`, (error as Error).message);
+      console.error(`Attempt ${attempt}/${maxRetries}: Database initialization failed -`, error.message);
       
       if (attempt === maxRetries) {
         console.error('All connection attempts failed');
@@ -73,7 +66,7 @@ app.get('/api/getTimestamp', (req, res) => {
 
 app.get('/api/getCount', async (req, res) => {
   try {
-    const [rows] = await pool.execute<ClickCount[]>('SELECT * FROM clickCount');
+    const [rows] = await pool.query('SELECT * FROM clickCount');
     res.json(rows);
   } catch (error) {
     console.error('Database error:', error);
@@ -96,8 +89,7 @@ app.patch('/api/count/:id', async (req, res) => {
   try {
     const newCount = Number(count) + 1;
     
-    // UPDATE запрос возвращает ResultSetHeader
-    const [result] = await pool.execute<ResultSetHeader>(
+    const [result] = await pool.execute(
       'UPDATE clickCount SET count_value = ? WHERE id = ?',
       [newCount, id]
     );
@@ -106,8 +98,7 @@ app.patch('/api/count/:id', async (req, res) => {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    // SELECT запрос возвращает массив ClickCount
-    const [updatedRows] = await pool.execute<ClickCount[]>(
+    const [updatedRows] = await pool.execute(
       'SELECT id, count_value FROM clickCount WHERE id = ?',
       [id]
     );
